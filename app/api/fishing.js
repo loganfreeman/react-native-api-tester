@@ -1,8 +1,18 @@
+import cheerio from 'cheerio';
+
 export const UTAH_FISHING_URL = "https://wildlife.utah.gov/hotspots/";
 
 
 export function request() {
   return fetch(UTAH_FISHING_URL).then(raw => raw.text())
+  .then(html => {
+    let $ = cheerio.load(html);
+    let waterbodies = [];
+    $('script').each((index, element) => {
+      getWaterBody($(element).html(), waterbodies);
+    });
+    return waterbodies;
+  })
 }
 
 function findTextAndReturnRemainder(target, variable) {
@@ -15,7 +25,7 @@ function findTextAndReturnRemainder(target, variable) {
   return result;
 }
 
-export function getWaterBody(text) {
+export function getWaterBody(text,waterbodies = []) {
   if (!text) {
     return;
   }
@@ -25,7 +35,9 @@ export function getWaterBody(text) {
 
     result.forEach((waterbody) => {
       waterbody.url = `https://wildlife.utah.gov/hotspots/detailed.php?id=${waterbody[3]}`
-      console.log(waterbody)
+      // console.log(waterbody)
+      waterbodies.push(waterbody)
     })
   }
+  return waterbodies;
 }
