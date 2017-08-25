@@ -25,6 +25,22 @@ function findTextAndReturnRemainder(target, variable) {
   return result;
 }
 
+function getRating(status) {
+  let ratings = {
+    "Good": 3,
+    "Hot": 4,
+    "Fair": 2,
+    "Slow": 1,
+    "Closed": 0,
+    "No recent report": 0
+  }
+  return ratings[status];
+}
+
+function getDirectionUrl(latitude, longitude) {
+  return `http://maps.google.com/?q=${latitude},${longitude}`
+}
+
 export function getWaterBody(text,waterbodies = []) {
   if (!text) {
     return;
@@ -34,9 +50,20 @@ export function getWaterBody(text,waterbodies = []) {
     var result = eval(findAndClean);
 
     result.forEach((waterbody) => {
-      waterbody.url = `https://wildlife.utah.gov/hotspots/detailed.php?id=${waterbody[3]}`
-      // console.log(waterbody)
-      waterbodies.push(waterbody)
+      console.log(waterbody);
+      let url = `https://wildlife.utah.gov/hotspots/detailed.php?id=${waterbody[3]}`;
+      let item = {
+        title: waterbody[0],
+        latitude: waterbody[1],
+        longitude: waterbody[2],
+        status: waterbody[4],
+        rate: getRating(waterbody[4]),
+        kind: waterbody[5],
+        link: url,
+        direction: getDirectionUrl(waterbody[1], waterbody[2])
+      };
+      console.log(item);
+      waterbodies.push(item);
     })
   }
   return waterbodies;
